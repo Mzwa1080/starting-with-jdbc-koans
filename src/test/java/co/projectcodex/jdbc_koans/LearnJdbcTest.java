@@ -10,16 +10,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class LearnJdbcTest {
 
-    final String KOANS_DATABASE_URL = "";
+    final String KOANS_DATABASE_URL = "jdbc:h2:./target/jdbc_koans_db";
 
     public Connection getConnection() throws Exception {
         // TODO - add a username of "sa" and a blank password ""
+        String username = "";
+        String password = "";
         // TODO - if the db is created via default flyway config the username will be "sa" with a blank password
         // you can change this by removing the user element containing sa in the pom.xml file
         // if not be sure to delete the *.db files in your target folder before running mvn flyway:migrate the first time
         // and be sure the set the username to "sa" password blank ""
         // if your remove the user element from the pom.xml file you are use a username of "" and a password of ""
-        Connection conn = DriverManager.getConnection(KOANS_DATABASE_URL, "sa", "");
+        Connection conn = DriverManager.getConnection(KOANS_DATABASE_URL, "", "");
         return conn;
     }
 
@@ -109,6 +111,8 @@ public class LearnJdbcTest {
             Connection conn = getConnection();
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery ("select count(*) as fruit_count from fruit");
+//            ResultSet w = statement.executeQuery("select count(*) from fruit");
+            System.out.println(statement.executeQuery("select count(*) from fruit"));
 
             if (rs.next()) {
                 // mmm... how many rows was actually added in the V2__add_fruit.sql migration file
