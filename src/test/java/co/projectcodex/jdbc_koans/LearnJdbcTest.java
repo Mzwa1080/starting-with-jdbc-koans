@@ -155,12 +155,12 @@ public class LearnJdbcTest {
             addFruitPreparedStatement.setString(1, "Orange");
             addFruitPreparedStatement.setDouble(2, 2.37);
             addFruitPreparedStatement.execute();
+
             // todo - add a Guava below costing 4.13
             addFruitPreparedStatement.setString(1, "Guava");
             addFruitPreparedStatement.setDouble(2, 4.13);
             // todo - add the appropriate prepared statement below
             addFruitPreparedStatement.execute();
-
             ResultSet rs = conn.createStatement().executeQuery("select * from fruit where name in ('Guava', 'Orange')");
 
             int counter = 0;
@@ -187,21 +187,19 @@ public class LearnJdbcTest {
         try {
             Connection conn = getConnection();
             final String FIND_FRUIT_SQL = "select name, price from fruit where price > ? order by id asc";
-            final String INSERT_FRUIT_SQL = "insert into fruit (name, price) values (?, ?)";
             // PreparedStatement are SQL statements that can be called
             // over and over with different parameters
             PreparedStatement findFruitPreparedStatement = conn.prepareStatement(FIND_FRUIT_SQL);
 
-            PreparedStatement insertFruitsAndPrices = conn.prepareStatement(INSERT_FRUIT_SQL);
+
             // todo - why is this failing?
             // todo - tip what parameter needs to set on the PreparedStatement be added here?
-            insertFruitsAndPrices.setString(1, "red apple");
-            insertFruitsAndPrices.setDouble(2, 4.75);
-            insertFruitsAndPrices.execute();
 
-            insertFruitsAndPrices.setString(1, "lemon");
-            insertFruitsAndPrices.setDouble(2, 5.75);
-            insertFruitsAndPrices.execute();
+
+            findFruitPreparedStatement.setDouble(1, 4);
+            findFruitPreparedStatement.execute();
+            System.out.println(findFruitPreparedStatement);
+
 
             ResultSet rs = findFruitPreparedStatement.executeQuery();
             int counter = 0;
@@ -228,21 +226,28 @@ public class LearnJdbcTest {
     public void updateRedApplePrice() {
         try {
             Connection conn = getConnection();
-
             final String FIND_FRUIT_BY_NAME_SQL = "select price from fruit where name = ? order by id asc";
             final String UPDATE_FRUIT_BY_NAME_SQL = "update fruit set price = ? where name = ?";
 
+
             PreparedStatement updateFruitPreparedStatement = conn.prepareStatement(UPDATE_FRUIT_BY_NAME_SQL); //use to update.(set)
+
             // don't change anything above this line
             // todo - use the updateFruitPreparedStatement to update the apple price to 5.99 ...
             // todo - use the updateFruitPreparedStatement here
-            updateFruitPreparedStatement.setString(1,"red apple");
-            updateFruitPreparedStatement.setDouble(2,5.99);
+            updateFruitPreparedStatement.setString(2,"red apple");
+            updateFruitPreparedStatement.setDouble(1,5.99);
             updateFruitPreparedStatement.execute();
+            System.out.println("Update --- : " + updateFruitPreparedStatement);
+
 
             // don't change any code below this line
             PreparedStatement findFruitPreparedStatement = conn.prepareStatement(FIND_FRUIT_BY_NAME_SQL);
             findFruitPreparedStatement.setString(1, "red apple");
+
+            System.out.println("Search --- : " + findFruitPreparedStatement);
+
+            findFruitPreparedStatement.execute();
             ResultSet rs = findFruitPreparedStatement.executeQuery();
 
             if (rs.next()) {
