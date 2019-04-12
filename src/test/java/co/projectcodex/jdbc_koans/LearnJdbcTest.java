@@ -78,7 +78,6 @@ public class LearnJdbcTest {
             Connection conn = getConnection();
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery ("select * from fruit");
-
             // add the flyway plugin to you maven configuration in pom.xml
             // use the correct database name - jdbc_koans_db in the flyway maven config
 
@@ -111,12 +110,12 @@ public class LearnJdbcTest {
             Connection conn = getConnection();
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery ("select count(*) as fruit_count from fruit");
-//            ResultSet w = statement.executeQuery("select count(*) from fruit");
-            System.out.println(statement.executeQuery("select count(*) from fruit"));
+//  ----fruit count === alias == temporary names given in a table when querying-----
+            System.out.println(rs);
 
             if (rs.next()) {
                 // mmm... how many rows was actually added in the V2__add_fruit.sql migration file
-                assertEquals(3, rs.getInt("fruit_count"));
+                assertEquals(4, rs.getInt("fruit_count"));
             }
 
             // todo - add a V2__add_fruit.sql file in the src/main/db/migration folder
@@ -149,16 +148,18 @@ public class LearnJdbcTest {
             // PreparedStatement are SQL statements that can be called
             // over and over with different parameters
             PreparedStatement addFruitPreparedStatement = conn.prepareStatement(INSERT_FRUIT_SQL);
-
+            PreparedStatement selectFruitPreparedStatement = conn.prepareStatement(FIND_FRUIT_SQL);
             // use it to add 2 new fruits an Orange costing 2.37 and a Guava costing 4.13
 
             // todo - add Orange
-            addFruitPreparedStatement.setString(1, "__");
-            addFruitPreparedStatement.setDouble(2, 0.00);
+            addFruitPreparedStatement.setString(1, "Orange");
+            addFruitPreparedStatement.setDouble(2, 2.37);
             addFruitPreparedStatement.execute();
-
             // todo - add a Guava below costing 4.13
+            addFruitPreparedStatement.setString(1, "Guava");
+            addFruitPreparedStatement.setDouble(2, 4.13);
             // todo - add the appropriate prepared statement below
+            addFruitPreparedStatement.execute();
 
             ResultSet rs = conn.createStatement().executeQuery("select * from fruit where name in ('Guava', 'Orange')");
 
@@ -170,7 +171,7 @@ public class LearnJdbcTest {
                 }
                 else if ( counter == 2) {
                     // what is the correct price for a Guava
-                    assertEquals(0.00, rs.getDouble("price"));
+                    assertEquals(4.13, rs.getDouble("price"));
                 }
             }
             assertEquals(2, counter);
@@ -184,23 +185,30 @@ public class LearnJdbcTest {
     public void findFruitOver4() {
 
         try {
-
             Connection conn = getConnection();
             final String FIND_FRUIT_SQL = "select name, price from fruit where price > ? order by id asc";
-
+            final String INSERT_FRUIT_SQL = "insert into fruit (name, price) values (?, ?)";
             // PreparedStatement are SQL statements that can be called
             // over and over with different parameters
             PreparedStatement findFruitPreparedStatement = conn.prepareStatement(FIND_FRUIT_SQL);
 
+            PreparedStatement insertFruitsAndPrices = conn.prepareStatement(INSERT_FRUIT_SQL);
             // todo - why is this failing?
             // todo - tip what parameter needs to set on the PreparedStatement be added here?
+            insertFruitsAndPrices.setString(1, "red apple");
+            insertFruitsAndPrices.setDouble(2, 4.75);
+            insertFruitsAndPrices.execute();
+
+            insertFruitsAndPrices.setString(1, "lemon");
+            insertFruitsAndPrices.setDouble(2, 5.75);
+            insertFruitsAndPrices.execute();
 
             ResultSet rs = findFruitPreparedStatement.executeQuery();
             int counter = 0;
             while(rs.next()) {
                 counter++;
                 if (counter == 1) {
-                    assertEquals("rad apple", rs.getString("name"));
+                    assertEquals("red apple", rs.getString("name"));
                     assertEquals(4.75, rs.getDouble("price"));
                 }
                 else if ( counter == 2) {
@@ -218,18 +226,19 @@ public class LearnJdbcTest {
 
     @Test
     public void updateRedApplePrice() {
-
         try {
-
             Connection conn = getConnection();
+
             final String FIND_FRUIT_BY_NAME_SQL = "select price from fruit where name = ? order by id asc";
             final String UPDATE_FRUIT_BY_NAME_SQL = "update fruit set price = ? where name = ?";
 
-            PreparedStatement updateFruitPreparedStatement = conn.prepareStatement(UPDATE_FRUIT_BY_NAME_SQL);
+            PreparedStatement updateFruitPreparedStatement = conn.prepareStatement(UPDATE_FRUIT_BY_NAME_SQL); //use to update.(set)
             // don't change anything above this line
-
             // todo - use the updateFruitPreparedStatement to update the apple price to 5.99 ...
             // todo - use the updateFruitPreparedStatement here
+            updateFruitPreparedStatement.setString(1,"red apple");
+            updateFruitPreparedStatement.setDouble(2,5.99);
+            updateFruitPreparedStatement.execute();
 
             // don't change any code below this line
             PreparedStatement findFruitPreparedStatement = conn.prepareStatement(FIND_FRUIT_BY_NAME_SQL);
